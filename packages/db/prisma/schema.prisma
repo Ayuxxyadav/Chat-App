@@ -1,0 +1,43 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String     @id @default(uuid())
+  email    String     @unique
+  password String
+  name     String
+  photo    String?
+
+  rooms Room[] // ek user ke multiple rooms ho sakte hain
+  chats Chat[] // ek user ke multiple chats
+}
+
+model Room {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  createdAt   DateTime  @default(now())
+  adminId     String
+  admin       User   @relation(fields: [adminId], references: [id]) // room ka ek admin user hai
+  chats       Chat[]
+
+  
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id        Int     @id     @default(autoincrement())
+  roomId    Int
+  message   String
+  userId    String
+  room      Room        @relation(fields: [roomId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+ 
+}
